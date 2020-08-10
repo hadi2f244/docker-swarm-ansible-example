@@ -1,0 +1,2 @@
+#vagrant ubuntu image:
+# https://github.com/leandog/atdd-linux-vagrant-vm/issues/2#issuecomment-504727659

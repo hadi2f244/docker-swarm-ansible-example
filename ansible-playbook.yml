@@ -1,0 +1,74 @@
+---
+
+- hosts: all
+  tasks:
+    - name: force all nodes to leave the swarm
+      become: yes
+      shell: "docker swarm leave --force"
+      ignore_errors: yes
+
+- hosts: main_manager
+  tasks:
+    - debug:
+        msg: "{{ ansible_enp0s8.ipv4.address }}"
+
+    - name: Run docker-swarm
+      become: yes
+      shell: docker swarm init --advertise-addr {{ ansible_enp0s8.ipv4.address }}
+      register: init_results
+
+    - set_fact:
+        node_add_cmd: "{{ init_results.stdout | regex_search(regexp_node_add_cmd) }}"
+        #swarm_token: "{{ init_results.stdout | regex_search(regexp_swarm_token, '\\1') }}"
+      vars:
+        regexp_node_add_cmd: 'docker([\s\S]*)(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+'
+        #regexp_swarm_token: '--token([\s\S]*)\s(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+    - debug:
+        var: node_add_cmd
+    #- debug:    
+    #    var: swarm_token
+
+
+    - name: Get token manager
+      become: yes
+      shell: docker swarm join-token manager
+      register: token_manager_result
+
+    - set_fact:
+        manager_add_cmd: "{{ init_results.stdout | regex_search(regexp_manager_add_cmd) }}"
+      vars:
+        regexp_manager_add_cmd: 'docker([\s\S]*)(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+'
+    - debug:
+        var: manager_add_cmd
+
+
+- hosts: others_manager
+  tasks:
+    - debug:
+        msg: "{{ ansible_enp0s8.ipv4.address }}"
+    - debug:
+        msg: "{{ hostvars[groups.main_manager|first]['manager_add_cmd'] }}"
+
+    - name: Join to docker-swarm as manager
+      become: yes
+      shell: "{{ hostvars[groups.main_manager|first]['manager_add_cmd'] }}"
+   
+
+- hosts: nodes
+  tasks:
+    - debug:
+        msg: "{{ ansible_enp0s8.ipv4.address }}"
+    - debug:
+        msg: "{{ hostvars[groups.main_manager|first]['node_add_cmd'] }}"
+    - name: Add to docker swarm
+      become: yes
+      shell: "{{ hostvars[groups.main_manager|first]['node_add_cmd'] }}"
+    #docker swarm join-token manager
+    # notify:
+    # - Start Nginx
+    # Install docker and docker-compose and docker-swarm on the hosts that doesn't contain them
+    # handlers:
+    #  - name: Start Nginx
+    #  become: yes
+    #  service: name=nginx state=stoped
+# "Swarm initialized: current node (k1yfe7mam9fup6ibb4do79q3v) is now a manager.\n\nTo add a worker to this swarm, run the following command:\n\n    docker swarm join --token #SWMTKN-1-00zgcfxo9cfcg03t7ayqwqbgurlyvdo0fzs0zv8f6cjv4elx8d-59j88uj9qqaim4ise73qzx474 192.168.100.11:2377\n\nTo add a manager to this swarm, run 'docker swarm join-token manager' and follow the #instructions.", "stdout_lines": ["Swarm initialized: current node (k1yfe7mam9fup6ibb4do79q3v) is now a manager.", "", "To add a worker to this swarm, run the following command:", "", "    docker #swarm join --token SWMTKN-1-00zgcfxo9cfcg03t7ayqwqbgurlyvdo0fzs0zv8f6cjv4elx8d-59j88uj9qqaim4ise73qzx474 192.168.100.11:2377", "", "To add a manager to this swarm, run 'docker swarm join-token #manager' and follow the instructions."]}

@@ -1,0 +1,1 @@
+1. How to use a condition in playbook, for example running debug module for the tasks that contains an error(not all of the tasks)

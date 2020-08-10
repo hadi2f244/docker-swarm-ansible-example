@@ -1,0 +1,15 @@
+ansible -i hosts all -m shell --become -a "echo nameserver 185.51.200.2 > /etc/resolv.conf"
+ansible -i hosts all -m apt --become -a "pkg=nginx state=latest update_cache=true"
+ansible -i hosts all -m ping
+
+# Copy file
+ansible -i hosts managers -m copy -a "src=./problems.txt dest=~/problems.txt"
+
+# Delete file 
+ansible -i hosts managers -m file -a "dest=~/problems.txt state=absent" 
+
+# Search and showing the details of a key string in setup configs 
+ansible -i hosts all -m setup -a 'filter=*ipv4*'
+
+# swarm cmds :
+ansible -i hosts main_manager -m shell --become -a "docker swarm leave --force"

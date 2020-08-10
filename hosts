@@ -1,0 +1,21 @@
+[main_manager]
+vagrant@192.168.100.10 ansible_ssh_private_key_file=/home/hadi/Arman/swarm/vms/.vagrant/machines/manager1/virtualbox/private_key
+
+[others_manager]
+vagrant@192.168.100.11 ansible_ssh_private_key_file=/home/hadi/Arman/swarm/vms/.vagrant/machines/manager2/virtualbox/private_key
+
+[nodes]
+vagrant@192.168.100.20 ansible_ssh_private_key_file=/home/hadi/Arman/swarm/vms/.vagrant/machines/node1/virtualbox/private_key
+vagrant@192.168.100.21 ansible_ssh_private_key_file=/home/hadi/Arman/swarm/vms/.vagrant/machines/node2/virtualbox/private_key
+vagrant@192.168.100.22 ansible_ssh_private_key_file=/home/hadi/Arman/swarm/vms/.vagrant/machines/node3/virtualbox/private_key
+
+[main_manager:vars]
+ansible_ssh_user=vagrant
+
+[others_manager:vars]
+ansible_ssh_user=vagrant
+
+[nodes:vars]
+ansible_ssh_user=vagrant
+
+#ansible_ssh_private_key_file=/home/hadi/.ssh/id_rsa 
