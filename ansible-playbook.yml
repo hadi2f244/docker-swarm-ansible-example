@@ -35,7 +35,7 @@
       register: token_manager_result
 
     - set_fact:
-        manager_add_cmd: "{{ init_results.stdout | regex_search(regexp_manager_add_cmd) }}"
+        manager_add_cmd: "{{ token_manager_result.stdout | regex_search(regexp_manager_add_cmd) }}"
       vars:
         regexp_manager_add_cmd: 'docker([\s\S]*)(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+'
     - debug:
