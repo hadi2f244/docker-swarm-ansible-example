@@ -1,1 +1,3 @@
-# docker-swarm-ansible
+# docker-swarm-ansible-example
+
+Just a test environment  
